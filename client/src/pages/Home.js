@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import ProductList from "../components/ProductList";
 import CategoryMenu from "../components/CategoryMenu";
 
 const Home = () => {
-  const [currentCategory, setCategory] = useState("");
-
   return (
     <div className="container">
-      <CategoryMenu setCategory={setCategory} />
-      <ProductList currentCategory={currentCategory} />
+      {/* the home component does not need access to all the product/category data
+      so we are able to avoid passing props from here to category and product components */}
+      <CategoryMenu />
+      <ProductList />
     </div>
   );
 };
