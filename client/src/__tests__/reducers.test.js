@@ -4,10 +4,10 @@ import {
   UPDATE_PRODUCTS,
   UPDATE_CATEGORIES,
   UPDATE_CURRENT_CATEGORY,
-} from "../utils/actions";
+} from "../../../server/utils/actions";
 
 // import reducer
-import { reducer } from "../utils/reducers";
+import { reducer } from "../../../server/utils/reducers";
 
 // create sample of what our global state will look like
 const initialState = {
