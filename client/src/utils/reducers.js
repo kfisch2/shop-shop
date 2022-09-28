@@ -2,9 +2,15 @@ import {
   UPDATE_PRODUCTS,
   UPDATE_CATEGORIES,
   UPDATE_CURRENT_CATEGORY,
+  ADD_TO_CART,
+  ADD_MULTIPLE_TO_CART,
+  REMOVE_FROM_CART,
+  UPDATE_CART_QUANTITY,
+  CLEAR_CART,
+  TOGGLE_CART,
 } from "./actions";
 
-import { useReducer } from 'react';
+import { useReducer } from "react";
 
 export const reducer = (state, action) => {
   switch (action.type) {
@@ -19,15 +25,66 @@ export const reducer = (state, action) => {
     case UPDATE_CATEGORIES:
       return {
         ...state,
-        categories: [...action.categories]
-      }
+        categories: [...action.categories],
+      };
 
     case UPDATE_CURRENT_CATEGORY:
       return {
         ...state,
-        currentCategory: action.currentCategory
+        currentCategory: action.currentCategory,
+      };
+
+    case ADD_TO_CART:
+      return {
+        ...state,
+        cartOpen: true,
+        cart: [...state.cart, action.product],
+      };
+
+    case ADD_MULTIPLE_TO_CART:
+      return {
+        ...state,
+        cart: [...state.cart, ...action.products],
+      };
+
+    case REMOVE_FROM_CART:
+      // filter ensures the cart does not contain the products with the id from action
+      let newState = state.cart.filter((product) => {
+        return product._id !== action._id;
+      });
+
+      return {
+        ...state,
+        cartOpen: newState.length > 0,
+        cart: newState,
+      };
+
+    case UPDATE_CART_QUANTITY:
+      return {
+        ...state,
+        cartOpen: true,
+        cart: state.cart.map((product) => {
+          if (action._id === product._id) {
+            product.purchaseQuantity = action.purchaseQuantity;
+          }
+          return product;
+        }),
+      };
+
+    case CLEAR_CART: 
+      return {
+        ...state,
+        cartOpen: false,
+        cart: []
       }
 
+    case TOGGLE_CART:
+      return{
+        ...state,
+        //expect the cartOpen to be the opposite of state when toggled
+        // yay booleans!
+        cartOpen: !state.cartOpen
+      }
     // if it's none of these actions, do not update state
     default:
       return state;
@@ -36,8 +93,8 @@ export const reducer = (state, action) => {
 
 // useProductReducer() will help initialize global state object
 // provides functionality for updating state by automatically
-// running through the custom reducer() function. 
+// running through the custom reducer() function.
 // BASICALLY a more in-depth way of using useState hook
 export function useProductReducer(initialState) {
-  return useReducer(reducer, initialState)
+  return useReducer(reducer, initialState);
 }
