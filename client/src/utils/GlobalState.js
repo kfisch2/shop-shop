@@ -12,6 +12,8 @@ const StoreProvider = ({ value = [], ...props }) => {
   // dispatch = method we exec. to udpate state. Looks for an action object passed in as an arg.
   const [state, dispatch] = useProductReducer({
     products: [],
+    cart: [],
+    cartOpen: false,
     categories: [],
     currentCategory: "",
   });
