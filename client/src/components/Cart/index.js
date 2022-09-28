@@ -12,7 +12,7 @@ const Cart = () => {
         <CartItem
           item={{
             name: "Camera",
-            image: "campera.jpg",
+            image: "camera.jpg",
             price: 5,
             purchaseQuantity: 3,
           }}
@@ -27,7 +27,7 @@ const Cart = () => {
         />
 
         <div className="flex-row space-between">
-          <strong>Total: $0</strong>
+          <strong>Total: $11</strong>
           {Auth.loggedIn() ? (
             <button>Checkout</button>
           ) : (
