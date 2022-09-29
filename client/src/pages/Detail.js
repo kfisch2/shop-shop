@@ -1,12 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useQuery } from "@apollo/client";
 import { useStoreContext } from "../utils/GlobalState";
-import { REMOVE_FROM_CART, UPDATE_PRODUCTS, ADD_TO_CART, UPDATE_CART_QUANTITY } from '../utils/actions';
-import Cart from '../components/Cart';
+import {
+  REMOVE_FROM_CART,
+  UPDATE_PRODUCTS,
+  ADD_TO_CART,
+  UPDATE_CART_QUANTITY,
+} from "../utils/actions";
+import Cart from "../components/Cart";
+import { idbPromise } from "../utils/helpers";
 
-import { QUERY_PRODUCTS } from '../utils/queries';
-import spinner from '../assets/spinner.gif';
+import { QUERY_PRODUCTS } from "../utils/queries";
+import spinner from "../assets/spinner.gif";
 
 function Detail() {
   const [state, dispatch] = useStoreContext();
@@ -24,27 +30,38 @@ function Detail() {
     } else if (data) {
       dispatch({
         type: UPDATE_PRODUCTS,
-        products: data.products
-      })
+        products: data.products,
+      });
+
+      data.products.forEach((product) => {
+        idbPromise("products", "put", product);
+      });
+    } else if (!loading) {
+      idbPromise("products", "get").then((indexedProducts) => {
+        dispatch({
+          type: UPDATE_PRODUCTS,
+          products: indexedProducts,
+        });
+      });
     }
+
     // dependency array
     // hook's functionality is dependent on these and only runs when they've changed in value
-  }, [products, data, dispatch, id]);
-
+  }, [products, data, dispatch, id, loading]);
 
   const addToCart = () => {
     const itemInCart = cart.find((cartItem) => cartItem._id === id);
-  
+
     if (itemInCart) {
       dispatch({
         type: UPDATE_CART_QUANTITY,
         _id: id,
-        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
+        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1,
       });
     } else {
       dispatch({
         type: ADD_TO_CART,
-        product: { ...currentProduct, purchaseQuantity: 1 }
+        product: { ...currentProduct, purchaseQuantity: 1 },
       });
     }
   };
@@ -52,9 +69,9 @@ function Detail() {
   const removeFromCart = () => {
     dispatch({
       type: REMOVE_FROM_CART,
-      _id: currentProduct._id
-    })
-  }
+      _id: currentProduct._id,
+    });
+  };
 
   return (
     <>
@@ -67,9 +84,14 @@ function Detail() {
           <p>{currentProduct.description}</p>
 
           <p>
-            <strong>Price:</strong>${currentProduct.price}{' '}
+            <strong>Price:</strong>${currentProduct.price}{" "}
             <button onClick={addToCart}>Add to Cart</button>
-            <button disabled={!cart.find(p => p._id === currentProduct._id)} onClick={removeFromCart}>Remove from Cart</button>
+            <button
+              disabled={!cart.find((p) => p._id === currentProduct._id)}
+              onClick={removeFromCart}
+            >
+              Remove from Cart
+            </button>
           </p>
 
           <img
@@ -79,7 +101,7 @@ function Detail() {
         </div>
       ) : null}
       {loading ? <img src={spinner} alt="loading" /> : null}
-      <Cart/>
+      <Cart />
     </>
   );
 }
